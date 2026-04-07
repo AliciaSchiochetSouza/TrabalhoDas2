@@ -27,10 +27,10 @@ Ao final, a VendaMais poderá consultar seus KPIs com **defasagem máxima de 24 
 
 | Nome | GitHub |
 |------|--------|
-| Integrante 1 | [@github](https://github.com/AliciaSchiochetSouza/) |
-| Integrante 2 | [@github](https://github.com/felipedalcoquio/) |
-| Integrante 3 | [@github](https://github.com/LucasZultanski/) |
-| Integrante 4 | [@github](https://github.com/guilhermesilvasanttos/) |
+| Integrante 1 Alícia Souza| [@github](https://github.com/AliciaSchiochetSouza/) |
+| Integrante 2 Felipe Dalçoquio| [@github](https://github.com/felipedalcoquio/) |
+| Integrante 3 Lucas Zultanski| [@github](https://github.com/LucasZultanski/) |
+| Integrante 4 Guilherme Miranda| [@github](https://github.com/guilhermesilvasanttos/) |
 
 
 ## 📁 Estrutura do Repositório
