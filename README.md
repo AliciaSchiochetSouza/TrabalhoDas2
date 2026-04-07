@@ -81,3 +81,4 @@ Os ADRs documentam as decisões técnicas com contexto, alternativas considerada
 > **Disciplina:** Design e Arquitetura de Software II — 7.º Semestre  
 > **Professor:** Christiano Piccinin  
 > **Instituição:** UNIVILLE — Joinville, SC — 2026
+
