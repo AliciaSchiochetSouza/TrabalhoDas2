@@ -71,3 +71,8 @@ def extract_titulo_receber(myTimer: func.TimerRequest) -> None:
 def extract_transportadora(myTimer: func.TimerRequest) -> None:
     logging.info('tabela tansportadora')
     
+@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
+              use_monitor=False) 
+def extract_test(myTimer: func.TimerRequest) -> None:
+    logging.info('tabela test')
+    
