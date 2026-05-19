@@ -11,68 +11,68 @@ def timer_trigger_aula2(myTimer: func.TimerRequest) -> None:
 
     logging.info('Python timer trigger function executed.')
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela categoria produto')
+from triggers.extract_tabela_categoria_produto import bp as tabela_categoria_produto_bp
+app.register_functions(tabela_categoria_produto_bp)
 
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_cliente(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela cliente')
+from triggers.extract_tabela_cliente import bp as tabela_cliente_bp
+app.register_functions(tabela_cliente_bp)
+
+from triggers.extract_tabela_entrega import bp as tabela_entrega_bp
+app.register_functions(tabela_entrega_bp)
+
+from triggers.extract_tabela_estoque_movimentacao import bp as tabela_estoque_movimentacao_bp
+app.register_functions(tabela_estoque_movimentacao_bp)
+
+from triggers.extract_tabela_estoque_saldo import bp as tabela_estoque_saldo_bp
+app.register_functions(tabela_estoque_saldo_bp)
+
+from triggers.extract_tabela_pedido_item import bp as tabela_pedido_item_bp
+app.register_functions(tabela_pedido_item_bp)
+
+from triggers.extract_tabela_pedidos import bp as tabela_pedidos_bp
+app.register_functions(tabela_pedidos_bp)
+
+from triggers.extract_tabela_produto import bp as tabela_produto_bp
+app.register_functions(tabela_produto_bp)
+
+from triggers.extract_tabela_regiao import bp as tabela_regiao_bp
+app.register_functions(tabela_regiao_bp)
+
+from triggers.extract_tabela_representante import bp as tabela_representante_bp
+app.register_functions(tabela_representante_bp)
+
+from triggers.extract_tabela_titulo_receber import bp as tabela_titulo_receber_bp
+app.register_functions(tabela_titulo_receber_bp)
+
+from triggers.extract_tabela_transportadora import bp as tabela_transportadora_bp
+app.register_functions(tabela_transportadora_bp)
+
+from triggers.extract_tabela import bp as tabela_bp
+app.register_functions(tabela_bp)
+
+
+
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_entrega(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela entrega')    
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_estoque_movimentacao(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela estoque movimentacao')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_estoque_saldo(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela estoque saldo')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_pedido(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela pedidos')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_pedido_item(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela pedido item')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_produto(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela produto')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_regiao(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela regiao')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_representante(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela representante')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_titulo_receber(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela titulo receber')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_transportadora(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela tansportadora')
+
     
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def extract_test(myTimer: func.TimerRequest) -> None:
-    logging.info('tabela test')
+
     
