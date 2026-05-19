@@ -2,14 +2,6 @@ import logging
 import azure.functions as func
 
 app = func.FunctionApp()
-
-@app.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
-def timer_trigger_aula2(myTimer: func.TimerRequest) -> None:
-    if myTimer.past_due:
-        logging.info('The timer is past due!')
-
-    logging.info('Python timer trigger function executed.')
     
 from triggers.extract_tabela_categoria_produto import bp as tabela_categoria_produto_bp
 app.register_functions(tabela_categoria_produto_bp)
