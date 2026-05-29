@@ -36,7 +36,7 @@ def extract_cliente(myTimer: func.TimerRequest) -> None:
             # Cria um cursor para executar a consulta   
             cursor = conn.cursor()
             
-            query = "select top 5 * from extract.tabela_cliente"
+            query = "select top 5 * from erp.tabela_cliente"
 
             # Executa a consulta SQL
             cursor.execute(query)
@@ -47,5 +47,5 @@ def extract_cliente(myTimer: func.TimerRequest) -> None:
             logging.info(rows)           
 
     except Exception as e:
-        logging.error(f"Erro ao ler extract.tabela_cliente: {str(e)}")
+        logging.error(f"Erro ao ler erp.tabela_cliente: {str(e)}")
         raise
