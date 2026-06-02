@@ -36,7 +36,7 @@ def extract_estoque_movimentacao(myTimer: func.TimerRequest) -> None:
             # Cria um cursor para executar a consulta   
             cursor = conn.cursor()
             
-            query = "select top 5 * from extract.tabela_estoque_movimentacao"
+            query = "select top 5 * from erp.estoque_movimentacao"
             # Executa a consulta SQL
             cursor.execute(query)
 

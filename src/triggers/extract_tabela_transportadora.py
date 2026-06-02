@@ -36,7 +36,7 @@ def extract_transportadora(myTimer: func.TimerRequest) -> None:
             # Cria um cursor para executar a consulta   
             cursor = conn.cursor()
             
-            query = "select top 5 * from extract.tabela_transportadora"
+            query = "select top 5 * from erp.transportadora"
 
             # Executa a consulta SQL
             cursor.execute(query)
