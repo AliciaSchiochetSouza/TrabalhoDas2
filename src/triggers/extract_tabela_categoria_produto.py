@@ -3,6 +3,7 @@ import azure.functions as func
 import os
 import pyodbc
 
+
 bp = func.Blueprint()
 
 

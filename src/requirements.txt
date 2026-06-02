@@ -4,3 +4,6 @@
 
 azure-functions
 pyodbc
+SQLAlchemy
+psycopg2
+pymssql
