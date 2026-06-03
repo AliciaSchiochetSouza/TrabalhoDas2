@@ -7,7 +7,7 @@ bp = func.Blueprint()
 
 
 @bp.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
+              use_monitor=False, name="extract_pedido_item") 
 def extract_pedido_item(myTimer: func.TimerRequest) -> None:
 
     sql_server = os.getenv("SQL_SERVER_SOURCE")

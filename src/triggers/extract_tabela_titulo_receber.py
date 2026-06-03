@@ -7,7 +7,7 @@ bp = func.Blueprint()
 
 
 @bp.timer_trigger(schedule="0 0 6 * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
+              use_monitor=False, name="extract_titulo_receber") 
 def extract_titulo_receber(myTimer: func.TimerRequest) -> None:
 
     sql_server = os.getenv("SQL_SERVER_SOURCE")
@@ -36,7 +36,7 @@ def extract_titulo_receber(myTimer: func.TimerRequest) -> None:
             # Cria um cursor para executar a consulta   
             cursor = conn.cursor()
             
-            query = "select top 5 * from erptitulo_receber"
+            query = "select top 5 * from erp.titulo_receber"
 
             # Executa a consulta SQL
             cursor.execute(query)
