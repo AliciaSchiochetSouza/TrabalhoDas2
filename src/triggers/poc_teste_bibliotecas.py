@@ -1,5 +1,5 @@
 import logging
-from time import time
+import time
 import azure.functions as func
 import os
 import pyodbc
