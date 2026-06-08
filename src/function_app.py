@@ -9,8 +9,14 @@ app.register_functions(tabela_categoria_produto_bp)
 from triggers.extract_tabela_cliente import bp as tabela_cliente_bp
 app.register_functions(tabela_cliente_bp)
 
-from triggers.extract_tabela_entrega import bp as tabela_entrega_bp
-app.register_functions(tabela_entrega_bp)
+from triggers.extract_tabela_entrega_SQLAlchemy import bp as tabela_entrega_sqlalchemy_bp
+app.register_functions(tabela_entrega_sqlalchemy_bp)
+
+from triggers.extract_tabela_entrega_sqlite3 import bp as tabela_entrega_sqlite3_bp
+app.register_functions(tabela_entrega_sqlite3_bp)
+
+from triggers.extract_tabela_entrega import bp as tabela_entrega_pyodbc_bp
+app.register_functions(tabela_entrega_pyodbc_bp)
 
 from triggers.extract_tabela_estoque_movimentacao import bp as tabela_estoque_movimentacao_bp
 app.register_functions(tabela_estoque_movimentacao_bp)
