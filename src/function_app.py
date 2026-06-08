@@ -42,29 +42,5 @@ app.register_functions(tabela_transportadora_bp)
 from triggers.extract_tabela import bp as tabela_bp
 app.register_functions(tabela_bp)
 
-
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
+from triggers.poc_teste_bibliotecas import bp as poc_teste_bibliotecas_bp
+app.register_functions(poc_teste_bibliotecas_bp)
