@@ -36,28 +36,51 @@ def poc_teste_cliente(timer: func.TimerRequest) -> None:
     engine = create_engine(conn_str)
     
     try:
-        
+        # ===== MEDIÇÃO COM SQLALCHEMY =====
         logging.info("Iniciando medição com SQLAlchemy...")
         
-        inicio = time.perf_counter()
-        # Estabelece a conexão com o banco de dados usando pyodbc
+        inicio_sqlalchemy = time.perf_counter()
         with engine.connect() as conn:
             query = text("select * from erp.entrega")
-
-            # Executa a consulta SQL
             result = conn.execute(query)
-
-            # Busca todos os resultados da consulta
-            rows = [dict(row) for row in result.mappings()]
+            rows_sqlalchemy = [dict(row) for row in result.mappings()]
             
-            # Exibe no log de forma estruturada
-            for row in rows:
-                logging.info(f"Entrega extraído: {row}")
-
-            fim = time.perf_counter()
-            duracao = (fim - inicio) * 1000
+            for row in rows_sqlalchemy:
+                logging.info(f"Entrega extraído (SQLAlchemy): {row}")
+        
+        fim_sqlalchemy = time.perf_counter()
+        duracao_sqlalchemy = (fim_sqlalchemy - inicio_sqlalchemy) * 1000
+        logging.info(f"SQLAlchemy - Tempo de execução: {duracao_sqlalchemy:.2f} ms")
+        
+        # ===== MEDIÇÃO COM PYODBC =====
+        logging.info("Iniciando medição com pyODBC...")
+        
+        conn_str_pyodbc = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER={sql_server};"
+            f"DATABASE={database};"
+            f"UID={user};"
+            f"PWD={password};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+        
+        inicio_pyodbc = time.perf_counter()
+        with pyodbc.connect(conn_str_pyodbc) as conn:
+            cursor = conn.cursor()
+            cursor.execute("select * from erp.entrega")
+            rows_pyodbc = cursor.fetchall()
             
-            logging.info(f"terminando medição. Tempo de execução: {duracao:.2f} ms")
+            for row in rows_pyodbc:
+                logging.info(f"Entrega extraído (pyODBC): {row}")
+        
+        fim_pyodbc = time.perf_counter()
+        duracao_pyodbc = (fim_pyodbc - inicio_pyodbc) * 1000
+        logging.info(f"pyODBC - Tempo de execução: {duracao_pyodbc:.2f} ms")
+        
+        # ===== COMPARAÇÃO =====
+        logging.info(f"SQLAlchemy: {duracao_sqlalchemy:.2f} ms | pyODBC: {duracao_pyodbc:.2f} ms | Diferença: {abs(duracao_sqlalchemy - duracao_pyodbc):.2f} ms")
 
     except Exception as e:
         logging.error(f"Erro ao ler erp.entrega: {str(e)}")
