@@ -44,13 +44,10 @@ def poc_teste_cliente(timer: func.TimerRequest) -> None:
             query = text("select * from erp.entrega")
             result = conn.execute(query)
             rows_sqlalchemy = [dict(row) for row in result.mappings()]
-            
-            for row in rows_sqlalchemy:
-                logging.info(f"Entrega extraído (SQLAlchemy): {row}")
         
         fim_sqlalchemy = time.perf_counter()
         duracao_sqlalchemy = (fim_sqlalchemy - inicio_sqlalchemy) * 1000
-        logging.info(f"SQLAlchemy - Tempo de execução: {duracao_sqlalchemy:.2f} ms")
+        logging.info(f"SQLAlchemy - {len(rows_sqlalchemy)} registros extraídos | Tempo: {duracao_sqlalchemy:.2f} ms")
         
         # ===== MEDIÇÃO COM PYODBC =====
         logging.info("Iniciando medição com pyODBC...")
@@ -71,16 +68,24 @@ def poc_teste_cliente(timer: func.TimerRequest) -> None:
             cursor = conn.cursor()
             cursor.execute("select * from erp.entrega")
             rows_pyodbc = cursor.fetchall()
-            
-            for row in rows_pyodbc:
-                logging.info(f"Entrega extraído (pyODBC): {row}")
         
         fim_pyodbc = time.perf_counter()
         duracao_pyodbc = (fim_pyodbc - inicio_pyodbc) * 1000
-        logging.info(f"pyODBC - Tempo de execução: {duracao_pyodbc:.2f} ms")
+        logging.info(f"pyODBC - {len(rows_pyodbc)} registros extraídos | Tempo: {duracao_pyodbc:.2f} ms")
         
-        # ===== COMPARAÇÃO =====
-        logging.info(f"SQLAlchemy: {duracao_sqlalchemy:.2f} ms | pyODBC: {duracao_pyodbc:.2f} ms | Diferença: {abs(duracao_sqlalchemy - duracao_pyodbc):.2f} ms")
+        # ===== COMPARAÇÃO E RESULTADO FINAL =====
+        diferenca = abs(duracao_sqlalchemy - duracao_pyodbc)
+        percentual = (diferenca / max(duracao_sqlalchemy, duracao_pyodbc)) * 100
+        mais_rapido = "SQLAlchemy" if duracao_sqlalchemy < duracao_pyodbc else "pyODBC"
+        
+        logging.info("=" * 80)
+        logging.info("COMPARAÇÃO DE PERFORMANCE")
+        logging.info("=" * 80)
+        logging.info(f"SQLAlchemy: {duracao_sqlalchemy:.2f} ms")
+        logging.info(f"pyODBC:     {duracao_pyodbc:.2f} ms")
+        logging.info(f"Diferença:  {diferenca:.2f} ms ({percentual:.1f}%)")
+        logging.info(f"Mais rápido: {mais_rapido}")
+        logging.info("=" * 80)
 
     except Exception as e:
         logging.error(f"Erro ao ler erp.entrega: {str(e)}")
