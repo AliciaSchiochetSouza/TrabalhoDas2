@@ -70,15 +70,6 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_destino) as conn_destino:
             cursor_destino = conn_destino.cursor()
 
-            # Exemplo: consultar dados da tabela destino
-            cursor_destino.execute(
-                "SELECT TOP 5 * FROM erp.categoria_produto"
-            )
-
-            resultado = cursor_destino.fetchall()
-
-            logging.info(f"Registros da tabela destino: {resultado}")
-
             # Exemplo de INSERT dinâmico usando as colunas extraídas
             if rows:
 
