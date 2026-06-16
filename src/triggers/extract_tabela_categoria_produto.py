@@ -43,7 +43,7 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_source) as conn_source:
             cursor_source = conn_source.cursor()
 
-            query = "SELECT * FROM item.chamado"
+            query = "SELECT * FROM erp.categoria_produto"
 
             cursor_source.execute(query)
 
