@@ -77,7 +77,7 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
                 placeholders = ", ".join(["?"] * len(columns))
 
                 insert_query = f"""
-                    INSERT INTO erp.categoria_produto ({colunas_sql})
+                    INSERT INTO dbo.categoria_produto ({colunas_sql})
                     VALUES ({placeholders})
                 """
 
@@ -85,7 +85,7 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
                 conn_destino.commit()
 
                 logging.info(
-                    f"{len(rows)} registros inseridos em erp.categoria_produto."
+                    f"{len(rows)} registros inseridos em dbo.categoria_produto."
                 )
 
     except Exception as e:
