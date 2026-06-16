@@ -6,23 +6,29 @@ import pyodbc
 bp = func.Blueprint()
 
 
-@bp.timer_trigger(schedule="0 0 6 * * *", arg_name="myTimer", run_on_startup=False,
-              use_monitor=False) 
+@bp.timer_trigger(
+    schedule="0 0 6 * * *",
+    arg_name="myTimer",
+    run_on_startup=False,
+    use_monitor=False
+)
 def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
 
     sql_server = os.getenv("SQL_SERVER_SOURCE")
     sql_database = os.getenv("SQL_DATABASE_SOURCE")
     sql_user = os.getenv("SQL_USER_SOURCE")
     sql_password = os.getenv("SQL_PASSWORD_SOURCE")
-    
-    sql_server_destino = os.getenv("SQA_SERVER_DESTINO")
+
+    sql_server_destino = os.getenv("SQL_SERVER_DESTINO")
     sql_database_destino = os.getenv("SQL_DATABASE_DESTINO")
     sql_user_destino = os.getenv("SQL_USER_DESTINO")
     sql_password_destino = os.getenv("SQL_PASSWORD_DESTINO")
 
-    try:
-    # ---------- EXTRAÇÃO ----------
+    rows = []
+    columns = []
 
+    try:
+        # ---------- EXTRAÇÃO ----------
         conn_str_source = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
             f"SERVER={sql_server};"
@@ -43,10 +49,14 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
 
             rows = cursor_source.fetchall()
 
-            columns = [description[0] for description in cursor_source.description]
-            
-        # Configura a string de conexão para o banco de dados SQL Server
-        conn_str = (
+            # Obtém os nomes das colunas
+            columns = [col[0] for col in cursor_source.description]
+
+            logging.info(f"Colunas encontradas: {columns}")
+            logging.info(f"Quantidade de registros extraídos: {len(rows)}")
+
+        # ---------- DESTINO ----------
+        conn_str_destino = (
             "DRIVER={ODBC Driver 18 for SQL Server};"
             f"SERVER={sql_server_destino};"
             f"DATABASE={sql_database_destino};"
@@ -56,26 +66,39 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
             "TrustServerCertificate=no;"
             "Connection Timeout=30;"
         )
-        try:
-            # Estabelece a conexão com o banco de dados usando pyodbc
-            with pyodbc.connect(conn_str) as conn:
-                # Cria um cursor para executar a consulta   
-                cursor = conn.cursor()
-                
-                query = "select top 5 * from erp.categoria_produto"
 
-                # Executa a consulta SQL
-                cursor.execute(query)
+        with pyodbc.connect(conn_str_destino) as conn_destino:
+            cursor_destino = conn_destino.cursor()
 
-                # Busca todos os resultados da consulta
-                rows = cursor.fetchall()
+            # Exemplo: consultar dados da tabela destino
+            cursor_destino.execute(
+                "SELECT TOP 5 * FROM erp.categoria_produto"
+            )
 
-                logging.info(rows)           
+            resultado = cursor_destino.fetchall()
 
-        except Exception as e:
-            logging.error(f"Erro ao ler extract.tabela_categoria_produto: {str(e)}")
-            raise
+            logging.info(f"Registros da tabela destino: {resultado}")
+
+            # Exemplo de INSERT dinâmico usando as colunas extraídas
+            if rows:
+
+                colunas_sql = ", ".join(columns)
+                placeholders = ", ".join(["?"] * len(columns))
+
+                insert_query = f"""
+                    INSERT INTO erp.categoria_produto ({colunas_sql})
+                    VALUES ({placeholders})
+                """
+
+                cursor_destino.executemany(insert_query, rows)
+                conn_destino.commit()
+
+                logging.info(
+                    f"{len(rows)} registros inseridos em erp.categoria_produto."
+                )
+
     except Exception as e:
-        logging.error(f"Erro ao ler extract.tabela_categoria_produto: {str(e)}")
+        logging.error(
+            f"Erro ao processar extract.tabela_categoria_produto: {str(e)}"
+        )
         raise
-    
