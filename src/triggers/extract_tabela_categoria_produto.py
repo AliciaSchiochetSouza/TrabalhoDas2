@@ -5,92 +5,74 @@ import pyodbc
 
 bp = func.Blueprint()
 
-@bp.timer_trigger(schedule="0 0 6 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
-def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
+@bp.timer_trigger(schedule="0 * * * * *", arg_name="myTimer", run_on_startup=False,
+              use_monitor=False)
+def extract_categoria_produto(myTimer: func.TimerRequest) -> None:
+    logging.info('tabela categoria_produto.')
 
-    # --- Variáveis da Origem ---
     sql_server_source = os.getenv("SQL_SERVER_SOURCE")
     sql_database_source = os.getenv("SQL_DATABASE_SOURCE")
     sql_user_source = os.getenv("SQL_USER_SOURCE")
-    sql_password_source = os.getenv("SQL_PASSWORD_SOURCE")
+    sql_pass_source = os.getenv("SQL_PASSWORD_SOURCE")
 
-    # --- Variáveis do Destino ---
-    sql_server_dest = os.getenv("SQL_SERVER_DEST")
-    sql_database_dest = os.getenv("SQL_DATABASE_DEST")
-    sql_user_dest = os.getenv("SQL_USER_DEST")
-    sql_password_dest = os.getenv("SQL_PASSWORD_DEST")
+    sql_server_dest = os.getenv("SQL_SERVER_TARGET")
+    sql_database_dest = os.getenv("SQL_DATABASE_TARGET")
+    sql_user_dest = os.getenv("SQL_USER_TARGET")
+    sql_pass_dest = os.getenv("SQL_PASSWORD_TARGET")
 
-    logging.info(f"Lendo de: {sql_database_source} | Gravando em: {sql_database_dest}")
+    logging.info(f'Conectando ao banco SOURCE: {sql_server_source}/{sql_database_source}')
 
-    # --- String de Conexão: ORIGEM ---
-    conn_str_source = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        f"SERVER={sql_server_source};"
-        f"DATABASE={sql_database_source};"
-        f"UID={sql_user_source};"
-        f"PWD={sql_password_source};"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=30;"
-    )
-
-    # --- String de Conexão: DESTINO ---
-    conn_str_dest = (
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        f"SERVER={sql_server_dest};"
-        f"DATABASE={sql_database_dest};"
-        f"UID={sql_user_dest};"
-        f"PWD={sql_password_dest};"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=30;"
-    )
-   
     try:
-        # --- 1. EXTRAÇÃO (Conecta na ORIGEM) ---
+        conn_str_source = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER={sql_server_source};"
+            f"DATABASE={sql_database_source};"
+            f"UID={sql_user_source};"
+            f"PWD={sql_pass_source};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
         with pyodbc.connect(conn_str_source) as conn_source:
             cursor_source = conn_source.cursor()
-            
-            query_select = "SELECT * FROM erp.categoria_produto"
-            cursor_source.execute(query_select)
+            cursor_source.execute("SELECT * FROM erp.categoria_produto")
             rows = cursor_source.fetchall()
+            columns = [description[0] for description in cursor_source.description]
 
-            if not rows:
-                logging.warning("Nenhum registro encontrado na origem (erp.categoria_produto).")
-                return
+        if not rows:
+            logging.warning('Nenhum registro encontrado na tabela categoria_produto')
+            return
 
-            columns = [column[0] for column in cursor_source.description]
-            logging.info(f"Extração bem-sucedida: {len(rows)} registros encontrados.")
+        logging.info(f'Extração bem-sucedida: {len(rows)} registros encontrados')
 
-        # --- 2. LIMPEZA E CARREGAMENTO (Conecta no DESTINO) ---
+        conn_str_dest = (
+            "DRIVER={ODBC Driver 18 for SQL Server};"
+            f"SERVER={sql_server_dest};"
+            f"DATABASE={sql_database_dest};"
+            f"UID={sql_user_dest};"
+            f"PWD={sql_pass_dest};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
+        )
+
         with pyodbc.connect(conn_str_dest) as conn_dest:
             cursor_dest = conn_dest.cursor()
 
-            # Deixei o schema dbo, que é o padrão da tabela que vimos na sua imagem
-            table_name = "dbo.categoria_produto"
+            cursor_dest.execute("DELETE FROM itsm.categoria_produto")
+            logging.info('Tabela de destino limpa')
 
-            cursor_dest.execute(f"DELETE FROM {table_name}")
-            logging.info(f"Tabela de destino ({table_name}) limpa.")
+            placeholders = ','.join(['?' for _ in columns])
+            insert_query = f"INSERT INTO erp.categoria_produto ({','.join(columns)}) VALUES ({placeholders})"
 
-            placeholders = ",".join(["?" for _ in columns])
-            insert_query = f"INSERT INTO {table_name} ({','.join(columns)}) VALUES ({placeholders})"
-
-            # Habilita a inserção manual do ID
-            cursor_dest.execute(f"SET IDENTITY_INSERT {table_name} ON")
-            
-            # Executa o insert para todas as linhas
             cursor_dest.executemany(insert_query, rows)
-            
-            # Desabilita a inserção manual do ID
-            cursor_dest.execute(f"SET IDENTITY_INSERT {table_name} OFF")
-
-            # Efetiva as transações no banco de destino
             conn_dest.commit()
 
-            logging.info(f"Carga finalizada: {len(rows)} registros inseridos com sucesso no destino.")          
+        logging.info(f'Carregamento bem-sucedido: {len(rows)} registros inseridos')
 
     except pyodbc.Error as e:
-        logging.error(f"Erro de SQL: {str(e)}")
+        logging.error(f"Erro SQL: {str(e)}")
         raise
     except Exception as e:
         logging.error(f"Erro inesperado: {str(e)}")
