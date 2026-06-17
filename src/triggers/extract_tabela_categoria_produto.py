@@ -14,11 +14,11 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
     sql_user_source = os.getenv("SQL_USER_SOURCE")
     sql_password_source = os.getenv("SQL_PASSWORD_SOURCE")
 
-    # --- Variáveis do Destino ---
-    sql_server_dest = os.getenv("SQL_SERVER_DEST")
-    sql_database_dest = os.getenv("SQL_DATABASE_DEST")
-    sql_user_dest = os.getenv("SQL_USER_DEST")
-    sql_password_dest = os.getenv("SQL_PASSWORD_DEST")
+    # --- Variáveis do Destino (Ajustado para ler "_DESTINO") ---
+    sql_server_dest = os.getenv("SQL_SERVER_DESTINO")
+    sql_database_dest = os.getenv("SQL_DATABASE_DESTINO")
+    sql_user_dest = os.getenv("SQL_USER_DESTINO")
+    sql_password_dest = os.getenv("SQL_PASSWORD_DESTINO")
 
     logging.info(f"Lendo de: {sql_database_source} | Gravando em: {sql_database_dest}")
 
@@ -29,9 +29,7 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
         f"DATABASE={sql_database_source};"
         f"UID={sql_user_source};"
         f"PWD={sql_password_source};"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=30;"
+        "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
     )
 
     # --- String de Conexão: DESTINO ---
@@ -41,9 +39,7 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
         f"DATABASE={sql_database_dest};"
         f"UID={sql_user_dest};"
         f"PWD={sql_password_dest};"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=30;"
+        "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
     )
    
     try:
@@ -66,7 +62,6 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_dest) as conn_dest:
             cursor_dest = conn_dest.cursor()
 
-            # Deixei o schema dbo, que é o padrão da tabela que vimos na sua imagem
             table_name = "dbo.categoria_produto"
 
             cursor_dest.execute(f"DELETE FROM {table_name}")
