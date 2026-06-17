@@ -8,68 +8,89 @@ bp = func.Blueprint()
 @bp.timer_trigger(schedule="0 0 6 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
 def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
 
-    sql_server = os.getenv("SQL_SERVER_SOURCE")
-    sql_database = os.getenv("SQL_DATABASE_SOURCE")
-    sql_user = os.getenv("SQL_USER_SOURCE")
-    sql_password = os.getenv("SQL_PASSWORD_SOURCE")
+    # --- Variáveis da Origem ---
+    sql_server_source = os.getenv("SQL_SERVER_SOURCE")
+    sql_database_source = os.getenv("SQL_DATABASE_SOURCE")
+    sql_user_source = os.getenv("SQL_USER_SOURCE")
+    sql_password_source = os.getenv("SQL_PASSWORD_SOURCE")
 
-    logging.info(f"Iniciando processo. Servidor: {sql_server}, Banco: {sql_database}, Usuário: {sql_user}")
+    # --- Variáveis do Destino ---
+    sql_server_dest = os.getenv("SQL_SERVER_DEST")
+    sql_database_dest = os.getenv("SQL_DATABASE_DEST")
+    sql_user_dest = os.getenv("SQL_USER_DEST")
+    sql_password_dest = os.getenv("SQL_PASSWORD_DEST")
 
-    # Configura a string de conexão para o banco de dados SQL Server
-    conn_str = (
+    logging.info(f"Lendo de: {sql_database_source} | Gravando em: {sql_database_dest}")
+
+    # --- String de Conexão: ORIGEM ---
+    conn_str_source = (
         "DRIVER={ODBC Driver 18 for SQL Server};"
-        f"SERVER={sql_server};"
-        f"DATABASE={sql_database};"
-        f"UID={sql_user};"
-        f"PWD={sql_password};"
+        f"SERVER={sql_server_source};"
+        f"DATABASE={sql_database_source};"
+        f"UID={sql_user_source};"
+        f"PWD={sql_password_source};"
+        "Encrypt=yes;"
+        "TrustServerCertificate=no;"
+        "Connection Timeout=30;"
+    )
+
+    # --- String de Conexão: DESTINO ---
+    conn_str_dest = (
+        "DRIVER={ODBC Driver 18 for SQL Server};"
+        f"SERVER={sql_server_dest};"
+        f"DATABASE={sql_database_dest};"
+        f"UID={sql_user_dest};"
+        f"PWD={sql_password_dest};"
         "Encrypt=yes;"
         "TrustServerCertificate=no;"
         "Connection Timeout=30;"
     )
    
     try:
-        # Estabelece a conexão com o banco de dados usando pyodbc
-        with pyodbc.connect(conn_str) as conn:
-            cursor = conn.cursor()
+        # --- 1. EXTRAÇÃO (Conecta na ORIGEM) ---
+        with pyodbc.connect(conn_str_source) as conn_source:
+            cursor_source = conn_source.cursor()
             
-            # --- 1. EXTRAÇÃO (Origem) ---
             query_select = "SELECT * FROM erp.categoria_produto"
-            cursor.execute(query_select)
-            rows = cursor.fetchall()
+            cursor_source.execute(query_select)
+            rows = cursor_source.fetchall()
 
             if not rows:
                 logging.warning("Nenhum registro encontrado na origem (erp.categoria_produto).")
                 return
 
-            # Pega dinamicamente o nome das colunas retornado pelo SELECT
-            columns = [column[0] for column in cursor.description]
+            columns = [column[0] for column in cursor_source.description]
             logging.info(f"Extração bem-sucedida: {len(rows)} registros encontrados.")
 
-            # --- 2. LIMPEZA (Destino) ---
-            # Ajustado para dbo.categoria_produto
-            cursor.execute("DELETE FROM dbo.categoria_produto")
-            logging.info("Tabela de destino (dbo.categoria_produto) limpa.")
+        # --- 2. LIMPEZA E CARREGAMENTO (Conecta no DESTINO) ---
+        with pyodbc.connect(conn_str_dest) as conn_dest:
+            cursor_dest = conn_dest.cursor()
 
-            # --- 3. CARREGAMENTO (Destino) ---
+            # Deixei o schema dbo, que é o padrão da tabela que vimos na sua imagem
+            table_name = "dbo.categoria_produto"
+
+            cursor_dest.execute(f"DELETE FROM {table_name}")
+            logging.info(f"Tabela de destino ({table_name}) limpa.")
+
             placeholders = ",".join(["?" for _ in columns])
-            insert_query = f"INSERT INTO dbo.categoria_produto ({','.join(columns)}) VALUES ({placeholders})"
+            insert_query = f"INSERT INTO {table_name} ({','.join(columns)}) VALUES ({placeholders})"
 
-            # Habilita a inserção manual do ID na tabela dbo
-            cursor.execute("SET IDENTITY_INSERT dbo.categoria_produto ON")
+            # Habilita a inserção manual do ID
+            cursor_dest.execute(f"SET IDENTITY_INSERT {table_name} ON")
             
             # Executa o insert para todas as linhas
-            cursor.executemany(insert_query, rows)
+            cursor_dest.executemany(insert_query, rows)
             
-            # Desabilita a inserção manual do ID na tabela dbo
-            cursor.execute("SET IDENTITY_INSERT dbo.categoria_produto OFF")
+            # Desabilita a inserção manual do ID
+            cursor_dest.execute(f"SET IDENTITY_INSERT {table_name} OFF")
 
-            # Efetiva as transações no banco de dados
-            conn.commit()
+            # Efetiva as transações no banco de destino
+            conn_dest.commit()
 
-            logging.info(f"Carga finalizada: {len(rows)} registros inseridos no destino.")          
+            logging.info(f"Carga finalizada: {len(rows)} registros inseridos com sucesso no destino.")          
 
     except pyodbc.Error as e:
-        logging.error(f"Erro de SQL no processamento da tabela_categoria_produto: {str(e)}")
+        logging.error(f"Erro de SQL: {str(e)}")
         raise
     except Exception as e:
         logging.error(f"Erro inesperado: {str(e)}")
