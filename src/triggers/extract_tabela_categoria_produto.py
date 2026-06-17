@@ -13,7 +13,6 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
     sql_user = os.getenv("SQL_USER_SOURCE")
     sql_password = os.getenv("SQL_PASSWORD_SOURCE")
 
-    # Dica de segurança: Senha removida do log
     logging.info(f"Iniciando processo. Servidor: {sql_server}, Banco: {sql_database}, Usuário: {sql_user}")
 
     # Configura a string de conexão para o banco de dados SQL Server
@@ -47,21 +46,22 @@ def extract_categoria_produtos(myTimer: func.TimerRequest) -> None:
             logging.info(f"Extração bem-sucedida: {len(rows)} registros encontrados.")
 
             # --- 2. LIMPEZA (Destino) ---
-            cursor.execute("DELETE FROM itsm.categoria_produto")
-            logging.info("Tabela de destino (itsm.categoria_produto) limpa.")
+            # Ajustado para dbo.categoria_produto
+            cursor.execute("DELETE FROM dbo.categoria_produto")
+            logging.info("Tabela de destino (dbo.categoria_produto) limpa.")
 
             # --- 3. CARREGAMENTO (Destino) ---
             placeholders = ",".join(["?" for _ in columns])
-            insert_query = f"INSERT INTO itsm.categoria_produto ({','.join(columns)}) VALUES ({placeholders})"
+            insert_query = f"INSERT INTO dbo.categoria_produto ({','.join(columns)}) VALUES ({placeholders})"
 
-            # Habilita a inserção manual do ID
-            cursor.execute("SET IDENTITY_INSERT itsm.categoria_produto ON")
+            # Habilita a inserção manual do ID na tabela dbo
+            cursor.execute("SET IDENTITY_INSERT dbo.categoria_produto ON")
             
             # Executa o insert para todas as linhas
             cursor.executemany(insert_query, rows)
             
-            # Desabilita a inserção manual do ID
-            cursor.execute("SET IDENTITY_INSERT itsm.categoria_produto OFF")
+            # Desabilita a inserção manual do ID na tabela dbo
+            cursor.execute("SET IDENTITY_INSERT dbo.categoria_produto OFF")
 
             # Efetiva as transações no banco de dados
             conn.commit()
