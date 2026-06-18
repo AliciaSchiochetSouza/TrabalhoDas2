@@ -5,7 +5,6 @@ import pyodbc
 
 bp = func.Blueprint()
 
-# Agendamento configurado para rodar 1 vez por dia às 06:00
 @bp.timer_trigger(schedule="0 0 6 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
 def extract_pedido_item(myTimer: func.TimerRequest) -> None:
 
@@ -48,7 +47,7 @@ def extract_pedido_item(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_source) as conn_source:
             cursor_source = conn_source.cursor()
             
-            # Busca todos os itens de pedido da origem (sem o top 5)
+            # Busca todos os itens de pedido da origem
             query_select = "SELECT * FROM erp.pedido_item"
             cursor_source.execute(query_select)
             rows = cursor_source.fetchall()
