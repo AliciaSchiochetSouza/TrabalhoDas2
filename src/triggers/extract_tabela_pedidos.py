@@ -47,13 +47,13 @@ def extract_pedido(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_source) as conn_source:
             cursor_source = conn_source.cursor()
             
-            # Busca todos os pedidos da origem
-            query_select = "SELECT * FROM erp.pedidos"
+            # Ajustado para o nome correto: erp.pedido
+            query_select = "SELECT * FROM erp.pedido"
             cursor_source.execute(query_select)
             rows = cursor_source.fetchall()
 
             if not rows:
-                logging.warning("Nenhum registro encontrado na origem (erp.pedidos).")
+                logging.warning("Nenhum registro encontrado na origem (erp.pedido).")
                 return
 
             columns = [column[0] for column in cursor_source.description]
@@ -63,7 +63,8 @@ def extract_pedido(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_dest) as conn_dest:
             cursor_dest = conn_dest.cursor()
 
-            table_name = "dbo.pedidos"
+            # Ajustado para o nome correto: dbo.pedido
+            table_name = "dbo.pedido"
 
             cursor_dest.execute(f"DELETE FROM {table_name}")
             logging.info(f"Tabela de destino ({table_name}) limpa.")
@@ -83,11 +84,11 @@ def extract_pedido(myTimer: func.TimerRequest) -> None:
             # Efetiva as transações
             conn_dest.commit()
 
-            logging.info(f"Carga finalizada: {len(rows)} pedidos inseridos no destino.")          
+            logging.info(f"Carga finalizada: {len(rows)} pedidos inseridos no destino ({table_name}).")          
 
     except pyodbc.Error as e:
-        logging.error(f"Erro de SQL no processamento de pedidos: {str(e)}")
+        logging.error(f"Erro de SQL no processamento de pedido: {str(e)}")
         raise
     except Exception as e:
-        logging.error(f"Erro inesperado no processo de pedidos: {str(e)}")
+        logging.error(f"Erro inesperado no processo de pedido: {str(e)}")
         raise
