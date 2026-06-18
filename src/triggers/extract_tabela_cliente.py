@@ -47,7 +47,7 @@ def extract_cliente(myTimer: func.TimerRequest) -> None:
         with pyodbc.connect(conn_str_source) as conn_source:
             cursor_source = conn_source.cursor()
             
-            # Removido o 'top 5' para buscar todos os clientes da origem
+            # Busca todos os clientes da origem
             query_select = "SELECT * FROM erp.cliente"
             cursor_source.execute(query_select)
             rows = cursor_source.fetchall()
@@ -72,7 +72,7 @@ def extract_cliente(myTimer: func.TimerRequest) -> None:
             placeholders = ",".join(["?" for _ in columns])
             insert_query = f"INSERT INTO {table_name} ({','.join(columns)}) VALUES ({placeholders})"
 
-            # Habilita a inserção manual de IDs caso a tabela destino utilize IDENTITY
+            # Habilita a inserção manual de IDs
             cursor_dest.execute(f"SET IDENTITY_INSERT {table_name} ON")
             
             # Executa a inserção em lote de todas as linhas de clientes
