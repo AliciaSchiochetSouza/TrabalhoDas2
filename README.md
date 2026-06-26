@@ -82,3 +82,5 @@ Os ADRs documentam as decisões técnicas com contexto, alternativas considerada
 > **Professor:** Christiano Piccinin  
 > **Instituição:** UNIVILLE — Joinville, SC — 2026
 
+|  DASHBOARD  | [![dashboardvisaogeral](<Dashboarde visão geral Das.png>)]
+|  DASHBOARD  | [![dashboardrepresentante](<Dashboarde representantes Das.png>)]
