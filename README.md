@@ -78,9 +78,10 @@ Os ADRs documentam as decisões técnicas com contexto, alternativas considerada
 | Consumo | Power BI Service | Dashboards interativos por área |
 
 
+|  DASHBOARD  | [![dashboardvisaogeral](<Dashboarde visão geral Das.png>)]
+|  DASHBOARD  | [![dashboardrepresentante](<Dashboarde representantes Das.png>)]
+
+
 > **Disciplina:** Design e Arquitetura de Software II — 7.º Semestre  
 > **Professor:** Christiano Piccinin  
 > **Instituição:** UNIVILLE — Joinville, SC — 2026
-
-|  DASHBOARD  | [![dashboardvisaogeral](<Dashboarde visão geral Das.png>)]
-|  DASHBOARD  | [![dashboardrepresentante](<Dashboarde representantes Das.png>)]
